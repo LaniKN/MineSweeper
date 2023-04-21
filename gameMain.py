@@ -1,6 +1,10 @@
+from variables import player_grid, minesNum, key_grid
 from firstMoveFunct import firstMove
 from mineCount import countMines
 from boardFunct import createKey, createPlayerGrid, show_grid
+from turnFuncts import play, gameAskTurn
+from spacesAround import surroundingSpaces
+
 
 def myGame():  
     
@@ -16,24 +20,40 @@ def myGame():
         key_grid = surroundingSpaces(firstMove(player_grid, createKey(key_grid, size), size))
         minesNum = countMines(key_grid, size)
         print()
-        gameAskTurn(minesNum,player_grid,key_grid)
+        gameAskTurn()
     elif difficulty == '2': #7x7
         size = 7
         key_grid = surroundingSpaces(firstMove(player_grid, createKey(key_grid, size), size))
         minesNum = countMines(key_grid, size)
         player_grid = createPlayerGrid(size)
-        boardShow(player_grid)
+        show_grid(player_grid)
         print()
-        gameAskTurn(minesNum,player_grid,key_grid)
+        gameAskTurn()
     elif difficulty == '3': #9x9
         size = 9
         key_grid = surroundingSpaces(firstMove(player_grid, createKey(key_grid, size), size))
         minesNum = countMines(key_grid, size)
         player_grid = createPlayerGrid(size)
-        gridShow(player_grid)
+        show_grid(player_grid)
         print()
-        gameAskTurn(minesNum,player_grid,key_grid)
+        gameAskTurn()
     else:
         print("Please choose an option between 1 and 3!")
-        myGame(player_grid, key_grid, minesNum, difficulty)
+        myGame()
     
+
+def gameOver():
+    print()
+    show_grid()
+    playAgain = input("Oh No! You've hit a mine!! Would you like to play again? (y/n)?\n")
+    if playAgain.lower() == 'y':
+        player_grid = []
+        key_grid = []
+        minesNum = 0
+        myGame()
+    else:
+        print("Okay! Thank you for Playing!\n")
+
+
+
+

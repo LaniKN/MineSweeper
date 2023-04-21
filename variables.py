@@ -6,6 +6,7 @@ MINE = 1
 UNKNOWN = -1
 FLAG = -2
 size = 0
+minesNum = 0
 
 
 
