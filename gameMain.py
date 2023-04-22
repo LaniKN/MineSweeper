@@ -9,7 +9,7 @@ flagNum = 0
 
 
 def myGame():  
-    global size
+    global size, minesNum, flagNum
     difficulty = input('What size game to you want?\n1: 5x5\n2: 7x7\n3: 9x9\n')
     print()
     
@@ -19,10 +19,13 @@ def myGame():
         createPlayerGrid()
         createKey()
         show_grid()
-        print("Should be visible")
+        print()
         firstMove()
+        print(key_grid)
         surroundingSpaces()
+        
         countMines()
+        print(minesNum, "\nFlags: ", flagNum)
         print()
         gameAskTurn()
     elif difficulty == '2': #7x7
@@ -30,7 +33,7 @@ def myGame():
         createPlayerGrid()
         createKey()
         show_grid()
-        print("Should be visible")
+        print()
         firstMove()
         surroundingSpaces()
         countMines()
@@ -41,7 +44,7 @@ def myGame():
         createPlayerGrid()
         createKey()
         show_grid()
-        print("Should be visible")
+        print()
         firstMove()
         surroundingSpaces()
         countMines()
@@ -53,17 +56,17 @@ def myGame():
 
 
 def gameAskTurn():
-
+    global flagNum
     show_grid()
     
-    print("\nFlags: ", minesNum)
+    print("\nFlags: ", flagNum)
     turnChoice = input('Would you like to mine or place flags? M, F?\n').upper()
     play(turnChoice)
 
 
 #-- Initialize
 def countMines():
-    global minesNum, size, flagNum
+    global minesNum, size, flagNum, key_grid, MINE
     count = 0
     for i in range(size):
         for j in range(size):
@@ -71,9 +74,10 @@ def countMines():
                 count+=1
     minesNum = count
     flagNum = count
+    return print("Mines num: ", minesNum, "\nFlag Num: ", flagNum)
 
 def createKey():
-    global size
+    global size, key_grid
     for i in range(size):
         col = []
         for j in range(size):
@@ -82,22 +86,18 @@ def createKey():
         key_grid.append(col)
 
 def createPlayerGrid():
-    global size
-    a=1
+    global size, player_grid
     for i in range(size):
-        col = []
-        for j in range(size+1):
-            if j == 0:
-                col.append(a)
-                a+=1
-            else:
-                col.append(UNKNOWN)
-                print(col)
-        player_grid.append(col)
-    print(player_grid)
+        row = []
+        for j in range(size):
+            row.append(-1)
+        player_grid.append(row)
+
+
+
 
 def show_grid():
-    
+    global player_grid, UNKNOWN, EMPTY, FLAG
     symbols = {-2:"F", -1:"."}
     for row in range(len(player_grid)):
         for col in range(len(player_grid[row])):
@@ -106,17 +106,19 @@ def show_grid():
                 symbol = symbols[value]
             else:
                 symbol = str(value)
-            print(f'{symbol}work', end='')
+            print(f"{symbol} ", end='')
         print("")
+        
 
 
 def mineDecider():
+    global MINE, EMPTY
     import random
     num = random.randint(0,15)
     if num > 7:
-        space = MINE
+        space = 1
     else:
-        space = EMPTY
+        space = 0
         
     if size == 5 and num > 12:
         mineDecider()
@@ -128,7 +130,7 @@ def mineDecider():
 
 
 def surroundingSpaces():
-    
+    global key_grid, EMPTY, MINE
     #row
     for j in key_grid:
         #item
@@ -137,6 +139,7 @@ def surroundingSpaces():
             countMines = 0
             lstAbove = []
             lstSides = []
+            print("first ", lstSides)
             lstBelow = []
             row = key_grid[key_grid.index(j)]
             rowIndex = key_grid.index(j)
@@ -152,7 +155,7 @@ def surroundingSpaces():
                 #1st column -----------------------------------------------------------------------------------------
                 if itemIndex == 0:
                     if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
-                        lstSides += key_grid[rowIndex][nextItem]
+                        lstSides = key_grid[rowIndex][nextItem]
                    
                     
                     if rowIndex > 0:
@@ -162,26 +165,29 @@ def surroundingSpaces():
                     
                     
                     if rowIndex < len(key_grid)-1:
-                        lstBelow += key_grid[nextRow]
+                        lstBelow = key_grid[nextRow]
                         lstBelow = lstBelow[itemIndex:nextItem+1:1]
                        
                 
                 # middle columns ------------------------------------------------------------------------------------
                 if itemIndex > 0 and itemIndex < len(key_grid[rowIndex])-1:
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
-                        lstSides += key_grid[rowIndex][prevItem]
-                    if key_grid[rowIndex][nextItem] == UNKNOWN or key_grid[rowIndex][nextItem] == EMPTY:
-                        lstSides += key_grid[rowIndex][nextItem]
+                        lstSides.append(key_grid[rowIndex][prevItem])
+                        print("append prev item: ", lstSides)
+                    if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
+                        lstSides.append(key_grid[rowIndex][nextItem])
+                        print("append next item: ", lstSides)
+                    
                    
                     
                     if rowIndex > 0:
-                        lstAbove = key_grid[prevRow]
+                        lstAbove.append(key_grid[prevRow])
                         lstAbove = lstAbove[prevItem:nextItem+1:1]
                         
                     
                     
                     if rowIndex < len(key_grid)-1:
-                        lstBelow += key_grid[nextRow]
+                        lstBelow = key_grid[nextRow]
                         lstBelow = lstBelow[prevItem:nextItem+1:1]
                         
                 
@@ -189,7 +195,7 @@ def surroundingSpaces():
                 if itemIndex == len(key_grid[rowIndex])-1:
                     
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
-                        lstSides += key_grid[rowIndex][prevItem]
+                        lstSides = key_grid[rowIndex][prevItem]
                    
                     
                     if rowIndex > 0:
@@ -198,17 +204,18 @@ def surroundingSpaces():
                     
                     
                     if rowIndex < len(key_grid)-1:
-                        lstBelow += key_grid[nextRow]
+                        lstBelow = key_grid[nextRow]
                         lstBelow = lstBelow[prevItem:itemIndex+1:1]
-                        
+
+
+                
                 
                 # counting X's around space -----------------------------------------------------------------------
                 for item in lstAbove:
                     if item == MINE:
                         countMines += 1
-                for item in lstSides:
-                    if item == MINE:
-                        countMines += 1
+                if item == MINE:
+                    countMines += 1
                 for item in lstBelow:
                     if item == MINE:
                         countMines +=1
@@ -248,14 +255,18 @@ def play(turnChoice):
         coord = askPlayerCoordFlag()
         print(coord)
         set_flag(coord[1], coord[0])
+        gameAskTurn()
     elif turnChoice == 'M':
         coord = askPlayerCoordMine()
         isMine(coord)
+        gameAskTurn()
     else:
         print("Sorry! That is an invalid answer!\n")
         gameAskTurn()
 
 def set_flag(row, col):
+    global player_grid
+
     if player_grid[row][col] == UNKNOWN:
         player_grid[row][col] = FLAG
     elif player_grid[row][col] == FLAG:
@@ -276,11 +287,11 @@ def isMine(coord):
     
 
 
-def digSpace(rowIndexKey, itemIndexKey, rowIndexUI, itemIndexUI):
-        space = key_grid[rowIndexKey][itemIndexKey]
-        player_grid[rowIndexUI].insert(itemIndexUI, space)
+def digSpace(rowIndex, itemIndex):
+        space = key_grid[rowIndex][itemIndex]
+        player_grid[rowIndex].insert(itemIndex, space)
+        del player_grid[rowIndex][itemIndex+1]
         show_grid()
-        gameAskTurn()
 
 
 
@@ -304,7 +315,7 @@ def firstMove():
     nextItem = itemIndex + 1
     prevItem = itemIndex - 1
     prevRow = rowIndex - 1
-    nextRow = rowIndex +1
+    nextRow = rowIndex + 1
     
     if size == 5:
         #1st column -------------------
@@ -318,8 +329,8 @@ def firstMove():
             del key_grid[rowIndex][nextItem+1]
 
 
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
-            digSpace(rowIndex, nextItem, rowIndex+1, nextItem+1)
+            digSpace(rowIndex, itemIndex)
+            digSpace(rowIndex, nextItem)
             
         
         # middle columns ------------
@@ -336,9 +347,9 @@ def firstMove():
             key_grid[rowIndex].insert(nextItem, EMPTY)
             del key_grid[rowIndex][nextItem+1]
 
-            digSpace(rowIndex, prevItem, rowIndex+1, prevItem+1)
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
-            digSpace(rowIndex, nextItem, rowIndex+1, nextItem+1)
+            digSpace(rowIndex, prevItem)
+            digSpace(rowIndex, itemIndex)
+            digSpace(rowIndex, nextItem)
                 
         
         #last column-------------
@@ -351,22 +362,22 @@ def firstMove():
             key_grid[rowIndex].insert(itemIndex, EMPTY)
             del key_grid[rowIndex][nextItem]
 
-            digSpace(rowIndex, prevItem, rowIndex+1, prevItem+1)
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
+            digSpace(rowIndex, prevItem)
+            digSpace(rowIndex, itemIndex)
         
         #clear top space
         if (prevRow >= 0) and rowIndex != 0:     
             key_grid[prevRow].insert(itemIndex, EMPTY)
             del key_grid[prevRow][nextItem]
 
-            digSpace(prevRow, itemIndex, prevRow+1, itemIndex+1)
+            digSpace(prevRow, itemIndex)
         
         #clear bottom space
         if nextRow != size:
             key_grid[nextRow].insert(itemIndex, EMPTY)
             del key_grid[nextRow][nextItem]
 
-            digSpace(nextRow, itemIndex, nextRow+1, itemIndex+1)
+            digSpace(nextRow, itemIndex)
 
 
             
@@ -383,8 +394,8 @@ def firstMove():
             key_grid[rowIndex].insert(nextItem, EMPTY)
             del key_grid[rowIndex][nextItem+1]
 
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
-            digSpace(rowIndex, nextItem, rowIndex+1, nextItem+1) 
+            digSpace(rowIndex, itemIndex)
+            digSpace(rowIndex, nextItem) 
             
         
         # middle columns -------------
@@ -401,9 +412,9 @@ def firstMove():
             key_grid[rowIndex].insert(nextItem, EMPTY)
             del key_grid[rowIndex][nextItem+1]
 
-            digSpace(rowIndex, prevItem, rowIndex+1, prevItem+1)
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
-            digSpace(rowIndex, nextItem, rowIndex+1, nextItem+1)
+            digSpace(rowIndex, prevItem)
+            digSpace(rowIndex, itemIndex)
+            digSpace(rowIndex, nextItem)
              
         
         #last column-------------
@@ -416,8 +427,8 @@ def firstMove():
             key_grid[rowIndex].insert(itemIndex, EMPTY)
             del key_grid[rowIndex][nextItem]
             
-            digSpace(rowIndex, prevItem, rowIndex+1, prevItem+1)
-            digSpace(rowIndex, itemIndex, rowIndex+1, itemIndex+1)
+            digSpace(rowIndex, prevItem)
+            digSpace(rowIndex, itemIndex)
         
         #3 spaces above coord
         if (prevRow >= 0) and rowIndex != 0:
@@ -425,21 +436,21 @@ def firstMove():
             key_grid[prevRow].insert(itemIndex, EMPTY)
             del key_grid[prevRow][nextItem]
 
-            digSpace(prevRow, itemIndex, prevRow+1, itemIndex+1)
+            digSpace(prevRow, itemIndex)
             
             #col index on first col
             if itemIndex == 0:
                 key_grid[prevRow].insert(nextItem, EMPTY)
                 del key_grid[prevRow][nextItem+1]
 
-                digSpace(prevRow, nextItem, prevRow+1, nextItem+1)
+                digSpace(prevRow, nextItem)
                 
             #col index on last col
             elif itemIndex == len(key_grid[rowIndex])-1:
                 key_grid[prevRow].insert(prevItem, EMPTY)
                 del key_grid[prevRow][itemIndex]
 
-                digSpace(prevRow, prevItem, prevRow+1, prevItem+1)
+                digSpace(prevRow, prevItem)
                 
             #index in middle columns
             else:
@@ -448,8 +459,8 @@ def firstMove():
                 key_grid[prevRow].insert(prevItem, EMPTY)
                 del key_grid[prevRow][itemIndex]
 
-                digSpace(prevRow, prevItem, prevRow+1, prevItem+1)
-                digSpace(prevRow, nextItem, prevRow+1, nextItem+1)
+                digSpace(prevRow, prevItem)
+                digSpace(prevRow, nextItem)
             
             
         #3 spaces below coord
@@ -458,7 +469,7 @@ def firstMove():
             key_grid[nextRow].insert(itemIndex, EMPTY)
             del key_grid[nextRow][nextItem]
 
-            digSpace(nextRow, itemIndex, nextRow+1, itemIndex+1)
+            digSpace(nextRow, itemIndex)
             
             #col index on first col
             if prevItem >=0 and itemIndex != 0:
@@ -467,14 +478,14 @@ def firstMove():
                 key_grid[nextRow].insert(prevItem, EMPTY)
                 del key_grid[nextRow][itemIndex]
 
-                digSpace(nextRow, nextItem, nextRow+1, nextItem+1)
+                digSpace(nextRow, nextItem)
                 
             #col index on last col
             elif itemIndex == len(key_grid[rowIndex])-1:
                 key_grid[nextRow].insert(prevItem, EMPTY)
                 del key_grid[nextRow][itemIndex]
 
-                digSpace(nextRow, prevItem, nextRow+1, prevItem+1)
+                digSpace(nextRow, prevItem)
 
             
             #index in middle columns
@@ -484,8 +495,8 @@ def firstMove():
                 key_grid[prevRow].insert(prevItem, EMPTY)
                 del key_grid[prevRow][itemIndex]
 
-                digSpace(nextRow, prevItem, nextRow+1, prevItem+1)
-                digSpace(nextRow, nextItem, nextRow+1, nextItem+1)
+                digSpace(nextRow, prevItem)
+                digSpace(nextRow, nextItem)
             
 
     
