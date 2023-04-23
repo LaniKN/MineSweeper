@@ -18,33 +18,30 @@ def myGame():
         size = 5
         createPlayerGrid()
         createKey()
-        show_grid()
-        print()
-        firstMove()
-        print(key_grid)
         surroundingSpaces()
-        
+        print()
+        show_grid()
+        firstMove()
+        print("key_gird matrix: ", key_grid)
         countMines()
         print(minesNum, "\nFlags: ", flagNum)
         print()
         gameAskTurn()
     elif difficulty == '2': #7x7
-        
         createPlayerGrid()
         createKey()
-        show_grid()
         print()
+        show_grid()
         firstMove()
         surroundingSpaces()
         countMines()
         print()
         gameAskTurn()
     elif difficulty == '3': #9x9
-       
         createPlayerGrid()
         createKey()
-        show_grid()
         print()
+        show_grid()
         firstMove()
         surroundingSpaces()
         countMines()
@@ -148,12 +145,14 @@ def surroundingSpaces():
             prevRow = key_grid.index(j) - 1
             nextRow = key_grid.index(j) + 1
             itemIndex = key_grid[rowIndex].index(i)
-            
+            print("rowIndex: ", rowIndex, "\nItemIndex: ", itemIndex)
             #If the item in the key is an open space, it will go on to count surrounding mines----------------------
             if i == EMPTY:
                 
                 #1st column -----------------------------------------------------------------------------------------
                 if itemIndex == 0:
+                    print("First column running")
+
                     if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
                         lstSides = key_grid[rowIndex][nextItem]
                    
@@ -171,6 +170,8 @@ def surroundingSpaces():
                 
                 # middle columns ------------------------------------------------------------------------------------
                 if itemIndex > 0 and itemIndex < len(key_grid[rowIndex])-1:
+                    print("Mid column running")
+
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
                         lstSides.append(key_grid[rowIndex][prevItem])
                         print("append prev item: ", lstSides)
@@ -193,7 +194,7 @@ def surroundingSpaces():
                 
                 #last column------------------------------------------------------------------------------------------
                 if itemIndex == len(key_grid[rowIndex])-1:
-                    
+                    print("last colunmn running")
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
                         lstSides = key_grid[rowIndex][prevItem]
                    
@@ -214,8 +215,9 @@ def surroundingSpaces():
                 for item in lstAbove:
                     if item == MINE:
                         countMines += 1
-                if item == MINE:
-                    countMines += 1
+                for item in lstSides:
+                    if item == MINE:
+                        countMines += 1
                 for item in lstBelow:
                     if item == MINE:
                         countMines +=1
@@ -224,7 +226,6 @@ def surroundingSpaces():
                 key_grid[rowIndex].insert(itemIndex, countMines)
                 del key_grid[rowIndex][nextItem]
                 
-    return key_grid
 
 
 
@@ -283,6 +284,7 @@ def isMine(coord):
        gameOver()
     else:
         digSpace(rowIndex-1, itemIndex-1, rowIndex, itemIndex)
+        show_grid()
         gameAskTurn()
     
 
@@ -291,7 +293,7 @@ def digSpace(rowIndex, itemIndex):
         space = key_grid[rowIndex][itemIndex]
         player_grid[rowIndex].insert(itemIndex, space)
         del player_grid[rowIndex][itemIndex+1]
-        show_grid()
+        
 
 
 
@@ -497,6 +499,7 @@ def firstMove():
 
                 digSpace(nextRow, prevItem)
                 digSpace(nextRow, nextItem)
+
             
 
     
