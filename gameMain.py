@@ -1,7 +1,7 @@
 player_grid = []
 key_grid = []
 EMPTY = 0
-MINE = 1
+MINE = -3
 UNKNOWN = -1
 FLAG = -2
 minesNum = 0
@@ -92,8 +92,8 @@ def createPlayerGrid():
 
 
 def show_grid():
-    global player_grid, UNKNOWN, EMPTY, FLAG, key_grid
-    symbols = {-2:"F", -1:"."}
+    global player_grid, UNKNOWN, FLAG, key_grid
+    symbols = {-2:"F", -1:".", -3:"X"}
     for row in range(len(player_grid)):
         for col in range(len(player_grid[row])):
             value = player_grid[row][col]
@@ -104,6 +104,16 @@ def show_grid():
                 symbol = str(keyVal)
             print(f"{symbol} ", end='')
         print("")
+
+def show_grid_key():
+    global key_grid, MINE
+    #add in symbols for MINE, EMPTY in grid to show.
+    for row in range(len(key_grid)):
+        for col in range(len(key_grid[row])):
+            value = str(key_grid[row][col])
+            print(f"{value}", end='')
+        print("")
+    print()
         
 
 
@@ -112,7 +122,7 @@ def mineDecider():
     import random
     num = random.randint(0,15)
     if num > 7:
-        space = -3
+        space = MINE
     else:
         space = 0
         
@@ -221,14 +231,14 @@ def surroundingSpaces():
 
 
 def askPlayerCoordFlag():
-   xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))
-   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))
+   xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))-1
+   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
    coord = [xCoord, yCoord]
    return coord
 
 def askPlayerCoordMine():
-   xCoord = int(input("What x-coordinate would you like to mine?\n"))
-   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))
+   xCoord = int(input("What x-coordinate would you like to mine?\n"))-1
+   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
    coord = [xCoord, yCoord]
    #[col, row]
    return coord
@@ -275,14 +285,15 @@ def set_flag(row, col):
 
 
 def isMine(coord):
-    rowIndex = coord[1]-1
-    itemIndex = coord[0]-1
+    global MINE, key_grid, player_grid
+    rowIndex = coord[1]
+    itemIndex = coord[0]
     print(player_grid[rowIndex][itemIndex])
     if key_grid[rowIndex][itemIndex] == MINE:
+       digSpace(rowIndex, itemIndex)
        gameOver()
     else:
         digSpace(rowIndex, itemIndex)
-        show_grid()
         gameAskTurn()
     
 
@@ -294,12 +305,10 @@ def digSpace(rowIndex, itemIndex):
         
 
 
-
-
 def gameOver():
     global player_grid, key_grid
     print()
-    show_grid()
+    show_grid_key()
     player_grid = []
     key_grid = []
     playAgain = input("Oh No! You've hit a mine!! Would you like to play again? (y/n)?\n")
@@ -307,6 +316,7 @@ def gameOver():
         myGame()
     else:
         print("Okay! Thank you for Playing!\n")
+        exit()
 
 
 def firstMove():
@@ -332,6 +342,7 @@ def firstMove():
             del key_grid[rowIndex][nextItem+1]
 
 
+            surroundingSpaces()
             digSpace(rowIndex, itemIndex)
             digSpace(rowIndex, nextItem)
             
@@ -350,6 +361,8 @@ def firstMove():
             key_grid[rowIndex].insert(nextItem, EMPTY)
             del key_grid[rowIndex][nextItem+1]
 
+
+            surroundingSpaces()
             digSpace(rowIndex, prevItem)
             digSpace(rowIndex, itemIndex)
             digSpace(rowIndex, nextItem)
@@ -365,6 +378,7 @@ def firstMove():
             key_grid[rowIndex].insert(itemIndex, EMPTY)
             del key_grid[rowIndex][nextItem]
 
+            surroundingSpaces()
             digSpace(rowIndex, prevItem)
             digSpace(rowIndex, itemIndex)
         
@@ -373,13 +387,15 @@ def firstMove():
             key_grid[prevRow].insert(itemIndex, EMPTY)
             del key_grid[prevRow][nextItem]
 
+            surroundingSpaces()
             digSpace(prevRow, itemIndex)
         
         #clear bottom space
         if nextRow != size:
-            key_grid[nextRow].insert(itemIndex, EMPTY)
+            key_grid[nextRow].insert(itemIndex, 0)
             del key_grid[nextRow][nextItem]
-
+            
+            surroundingSpaces()
             digSpace(nextRow, itemIndex)
 
 
