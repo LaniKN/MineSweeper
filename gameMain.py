@@ -27,6 +27,7 @@ def myGame():
         print()
         gameAskTurn()
     elif difficulty == '2': #7x7
+        size = 7
         createPlayerGrid()
         createKey()
         print()
@@ -37,6 +38,7 @@ def myGame():
         print()
         gameAskTurn()
     elif difficulty == '3': #9x9
+        size = 9
         createPlayerGrid()
         createKey()
         print()
@@ -108,10 +110,14 @@ def show_grid():
 def show_grid_key():
     global key_grid, MINE
     #add in symbols for MINE, EMPTY in grid to show.
+    symbols = {-3:"X", 0:"O"}
     for row in range(len(key_grid)):
         for col in range(len(key_grid[row])):
-            value = str(key_grid[row][col])
-            print(f"{value}", end='')
+            if key_grid[row][col] in symbols:
+                value = symbols[key_grid[row][col]]
+            else:
+                value = str(key_grid[row][col])
+            print(f"{value} ", end='')
         print("")
     print()
         
@@ -138,76 +144,80 @@ def mineDecider():
 def surroundingSpaces():
     global key_grid, EMPTY, MINE
     #row
-    for j in key_grid:
+    for row in key_grid:
         #item
-        for i in j:
+        for item in row:
             #variables that reset each loop-------------------------------------------------------------------------
-            countMines = 0
+            AboveCountMines = 0
+            SideCountMines = 0
+            BelowCountMines = 0
             lstAbove = []
             lstSides = []
             lstBelow = []
-            row = key_grid[key_grid.index(j)]
-            rowIndex = key_grid.index(j)
-            nextItem = row.index(i) + 1
-            prevItem = row.index(i) - 1
-            prevRow = key_grid.index(j) - 1
-            nextRow = key_grid.index(j) + 1
-            itemIndex = key_grid[rowIndex].index(i)
+            row = key_grid[key_grid.index(row)]
+            rowIndex = key_grid.index(row)
+            nextItem = row.index(item) + 1
+            prevItem = row.index(item) - 1
+            prevRow = key_grid.index(row) - 1
+            nextRow = key_grid.index(row) + 1
+            itemIndex = key_grid[rowIndex].index(item)
             #If the item in the key is an open space, it will go on to count surrounding mines----------------------
-            if i == EMPTY:
+            if item == EMPTY:
                 
                 #1st column -----------------------------------------------------------------------------------------
                 if itemIndex == 0:
 
-                    if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
-                        lstSides.append(key_grid[rowIndex][nextItem])
+                    lstSides.append(key_grid[rowIndex][nextItem])
                    
                     
-                    if rowIndex > 0:
+                    if rowIndex != 0:
                         lstAbove.append(key_grid[prevRow])
                         lstAbove = lstAbove[itemIndex:nextItem+1:1]
+                        print("above: ", lstAbove)
                         
                     
                     
-                    if rowIndex < len(key_grid)-1:
+                    if rowIndex != len(key_grid)-1:
                         lstBelow.append(key_grid[nextRow])
                         lstBelow = lstBelow[itemIndex:nextItem+1:1]
+                        print("below: ", lstBelow)
                        
                 
                 # middle columns ------------------------------------------------------------------------------------
                 if itemIndex > 0 and itemIndex < len(key_grid[rowIndex])-1:
 
-                    if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
-                        lstSides.append(key_grid[rowIndex][prevItem])
-                    if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
-                        lstSides.append(key_grid[rowIndex][nextItem])
+                    lstSides.append(key_grid[rowIndex][prevItem])
+                    lstSides.append(key_grid[rowIndex][nextItem])
                    
                     
-                    if rowIndex > 0:
+                    if rowIndex != 0:
                         lstAbove.append(key_grid[prevRow])
-                        lstAbove = lstAbove[prevItem:nextItem+1:1]
+                        lstAbove = lstAbove[prevItem:nextItem:1]
+                        print("above: ", lstAbove)
                         
                     
                     
-                    if rowIndex < len(key_grid)-1:
+                    if rowIndex != len(key_grid)-1:
                         lstBelow = key_grid[nextRow]
-                        lstBelow = lstBelow[prevItem:nextItem+1:1]
+                        lstBelow = lstBelow[prevItem:nextItem:1]
+                        print("below: ", lstBelow)
                         
                 
                 #last column------------------------------------------------------------------------------------------
                 if itemIndex == len(key_grid[rowIndex])-1:
-                    if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
-                        lstSides.append(key_grid[rowIndex][prevItem])
+                    lstSides.append(key_grid[rowIndex][prevItem])
                    
                     
-                    if rowIndex > 0:
+                    if rowIndex != 0:
                         lstAbove.append(key_grid[prevRow])
                         lstAbove = lstAbove[prevItem:itemIndex+1:1]
+                        print("above: ", lstAbove)
                     
                     
-                    if rowIndex < len(key_grid)-1:
+                    if rowIndex != len(key_grid)-1:
                         lstBelow.append(key_grid[nextRow])
                         lstBelow = lstBelow[prevItem:itemIndex+1:1]
+                        print("below: ", lstBelow)
 
 
                 
@@ -215,26 +225,32 @@ def surroundingSpaces():
                 # counting X's around space -----------------------------------------------------------------------
                 for item in lstAbove:
                     if item == MINE:
-                        countMines += 1
+                        AboveCountMines += 1
                 for item in lstSides:
                     if item == MINE:
-                        countMines += 1
+                        SideCountMines += 1
                 for item in lstBelow:
                     if item == MINE:
-                        countMines +=1
+                        BelowCountMines +=1
+                
+                print("above mines num: ", AboveCountMines, "\nSide mines num: ", SideCountMines, "\nBelow mines num: ", BelowCountMines )
                         
                 # Repacing EMPTY with the number of surrounding mines ------------------------------------------------
                 key_grid[rowIndex].insert(itemIndex, countMines)
                 del key_grid[rowIndex][nextItem]
+            
+            print("show then next item\n")
+            show_grid_key()
+            print()
                 
 
 
 
 def askPlayerCoordFlag():
-   xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))-1
-   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
-   coord = [xCoord, yCoord]
-   return coord
+    xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))-1
+    yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
+    coord = [xCoord, yCoord]
+    return coord
 
 def askPlayerCoordMine():
    xCoord = int(input("What x-coordinate would you like to mine?\n"))-1
@@ -255,7 +271,7 @@ def play(turnChoice):
     
     if turnChoice == 'F':
         coord = askPlayerCoordFlag()
-        print(coord)
+        print("play coord: ", coord)
         set_flag(coord[1], coord[0])
         gameAskTurn()
     elif turnChoice == 'M':
