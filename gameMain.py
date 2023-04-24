@@ -18,11 +18,10 @@ def myGame():
         size = 5
         createPlayerGrid()
         createKey()
-        surroundingSpaces()
         print()
         show_grid()
         firstMove()
-        print("key_gird matrix: ", key_grid)
+        surroundingSpaces()
         countMines()
         print(minesNum, "\nFlags: ", flagNum)
         print()
@@ -71,7 +70,6 @@ def countMines():
                 count+=1
     minesNum = count
     flagNum = count
-    return print("Mines num: ", minesNum, "\nFlag Num: ", flagNum)
 
 def createKey():
     global size, key_grid
@@ -94,15 +92,16 @@ def createPlayerGrid():
 
 
 def show_grid():
-    global player_grid, UNKNOWN, EMPTY, FLAG
+    global player_grid, UNKNOWN, EMPTY, FLAG, key_grid
     symbols = {-2:"F", -1:"."}
     for row in range(len(player_grid)):
         for col in range(len(player_grid[row])):
             value = player_grid[row][col]
+            keyVal = key_grid[row][col]
             if value in symbols:
                 symbol = symbols[value]
             else:
-                symbol = str(value)
+                symbol = str(keyVal)
             print(f"{symbol} ", end='')
         print("")
         
@@ -113,7 +112,7 @@ def mineDecider():
     import random
     num = random.randint(0,15)
     if num > 7:
-        space = 1
+        space = -3
     else:
         space = 0
         
@@ -136,7 +135,6 @@ def surroundingSpaces():
             countMines = 0
             lstAbove = []
             lstSides = []
-            print("first ", lstSides)
             lstBelow = []
             row = key_grid[key_grid.index(j)]
             rowIndex = key_grid.index(j)
@@ -145,40 +143,34 @@ def surroundingSpaces():
             prevRow = key_grid.index(j) - 1
             nextRow = key_grid.index(j) + 1
             itemIndex = key_grid[rowIndex].index(i)
-            print("rowIndex: ", rowIndex, "\nItemIndex: ", itemIndex)
             #If the item in the key is an open space, it will go on to count surrounding mines----------------------
             if i == EMPTY:
                 
                 #1st column -----------------------------------------------------------------------------------------
                 if itemIndex == 0:
-                    print("First column running")
 
                     if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
-                        lstSides = key_grid[rowIndex][nextItem]
+                        lstSides.append(key_grid[rowIndex][nextItem])
                    
                     
                     if rowIndex > 0:
-                        lstAbove = key_grid[prevRow]
+                        lstAbove.append(key_grid[prevRow])
                         lstAbove = lstAbove[itemIndex:nextItem+1:1]
                         
                     
                     
                     if rowIndex < len(key_grid)-1:
-                        lstBelow = key_grid[nextRow]
+                        lstBelow.append(key_grid[nextRow])
                         lstBelow = lstBelow[itemIndex:nextItem+1:1]
                        
                 
                 # middle columns ------------------------------------------------------------------------------------
                 if itemIndex > 0 and itemIndex < len(key_grid[rowIndex])-1:
-                    print("Mid column running")
 
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
                         lstSides.append(key_grid[rowIndex][prevItem])
-                        print("append prev item: ", lstSides)
                     if key_grid[rowIndex][nextItem] == MINE or key_grid[rowIndex][nextItem] == EMPTY:
                         lstSides.append(key_grid[rowIndex][nextItem])
-                        print("append next item: ", lstSides)
-                    
                    
                     
                     if rowIndex > 0:
@@ -194,18 +186,17 @@ def surroundingSpaces():
                 
                 #last column------------------------------------------------------------------------------------------
                 if itemIndex == len(key_grid[rowIndex])-1:
-                    print("last colunmn running")
                     if key_grid[rowIndex][prevItem] == MINE or key_grid[rowIndex][prevItem] == EMPTY:
-                        lstSides = key_grid[rowIndex][prevItem]
+                        lstSides.append(key_grid[rowIndex][prevItem])
                    
                     
                     if rowIndex > 0:
-                        lstAbove = key_grid[prevRow]
+                        lstAbove.append(key_grid[prevRow])
                         lstAbove = lstAbove[prevItem:itemIndex+1:1]
                     
                     
                     if rowIndex < len(key_grid)-1:
-                        lstBelow = key_grid[nextRow]
+                        lstBelow.append(key_grid[nextRow])
                         lstBelow = lstBelow[prevItem:itemIndex+1:1]
 
 
@@ -266,24 +257,31 @@ def play(turnChoice):
         gameAskTurn()
 
 def set_flag(row, col):
-    global player_grid
+    global player_grid,minesNum, flagNum
 
     if player_grid[row][col] == UNKNOWN:
         player_grid[row][col] = FLAG
     elif player_grid[row][col] == FLAG:
         player_grid[row][col] = UNKNOWN
+
+    if key_grid[row][col] == MINE:
+        minesNum -= 1
+        flagNum -= 1
+    else:
+        flagNum -= 1
+
     
 
 
 
 def isMine(coord):
-    rowIndex = coord[1]
-    itemIndex = coord[0]
+    rowIndex = coord[1]-1
+    itemIndex = coord[0]-1
     print(player_grid[rowIndex][itemIndex])
     if key_grid[rowIndex][itemIndex] == MINE:
        gameOver()
     else:
-        digSpace(rowIndex-1, itemIndex-1, rowIndex, itemIndex)
+        digSpace(rowIndex, itemIndex)
         show_grid()
         gameAskTurn()
     
@@ -299,8 +297,11 @@ def digSpace(rowIndex, itemIndex):
 
 
 def gameOver():
+    global player_grid, key_grid
     print()
     show_grid()
+    player_grid = []
+    key_grid = []
     playAgain = input("Oh No! You've hit a mine!! Would you like to play again? (y/n)?\n")
     if playAgain.lower() == 'y':
         myGame()
