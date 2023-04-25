@@ -148,9 +148,7 @@ def surroundingSpaces():
         #item
         for item in row:
             #variables that reset each loop-------------------------------------------------------------------------
-            AboveCountMines = 0
-            SideCountMines = 0
-            BelowCountMines = 0
+            countMines = 0
             lstAbove = []
             lstSides = []
             lstBelow = []
@@ -168,19 +166,17 @@ def surroundingSpaces():
                 if itemIndex == 0:
 
                     lstSides.append(key_grid[rowIndex][nextItem])
-                   
+
                     
                     if rowIndex != 0:
-                        lstAbove.append(key_grid[prevRow])
-                        lstAbove = lstAbove[itemIndex:nextItem+1:1]
-                        print("above: ", lstAbove)
+                        lstAbove.append(key_grid[prevRow][itemIndex])
+                        lstAbove.append(key_grid[prevRow][nextItem])
                         
                     
                     
                     if rowIndex != len(key_grid)-1:
-                        lstBelow.append(key_grid[nextRow])
-                        lstBelow = lstBelow[itemIndex:nextItem+1:1]
-                        print("below: ", lstBelow)
+                        lstBelow.append(key_grid[nextRow][itemIndex])
+                        lstBelow.append(key_grid[nextRow][nextItem])
                        
                 
                 # middle columns ------------------------------------------------------------------------------------
@@ -191,16 +187,16 @@ def surroundingSpaces():
                    
                     
                     if rowIndex != 0:
-                        lstAbove.append(key_grid[prevRow])
-                        lstAbove = lstAbove[prevItem:nextItem:1]
-                        print("above: ", lstAbove)
+                        lstAbove.append(key_grid[prevRow][prevItem])
+                        lstAbove.append(key_grid[prevRow][itemIndex])
+                        lstAbove.append(key_grid[prevRow][nextItem])
                         
                     
                     
                     if rowIndex != len(key_grid)-1:
-                        lstBelow = key_grid[nextRow]
-                        lstBelow = lstBelow[prevItem:nextItem:1]
-                        print("below: ", lstBelow)
+                        lstBelow.append(key_grid[nextRow][prevItem])
+                        lstBelow.append(key_grid[nextRow][itemIndex])
+                        lstBelow.append(key_grid[nextRow][nextItem])
                         
                 
                 #last column------------------------------------------------------------------------------------------
@@ -209,39 +205,31 @@ def surroundingSpaces():
                    
                     
                     if rowIndex != 0:
-                        lstAbove.append(key_grid[prevRow])
-                        lstAbove = lstAbove[prevItem:itemIndex+1:1]
-                        print("above: ", lstAbove)
+                        lstAbove.append(key_grid[prevRow][prevItem])
+                        lstAbove.append(key_grid[prevRow][itemIndex])
                     
                     
                     if rowIndex != len(key_grid)-1:
-                        lstBelow.append(key_grid[nextRow])
-                        lstBelow = lstBelow[prevItem:itemIndex+1:1]
-                        print("below: ", lstBelow)
-
+                        lstBelow.append(key_grid[nextRow][prevItem])
+                        lstBelow.append(key_grid[nextRow][itemIndex])
 
                 
                 
                 # counting X's around space -----------------------------------------------------------------------
                 for item in lstAbove:
                     if item == MINE:
-                        AboveCountMines += 1
+                        countMines += 1
                 for item in lstSides:
                     if item == MINE:
-                        SideCountMines += 1
+                        countMines += 1
                 for item in lstBelow:
                     if item == MINE:
-                        BelowCountMines +=1
-                
-                print("above mines num: ", AboveCountMines, "\nSide mines num: ", SideCountMines, "\nBelow mines num: ", BelowCountMines )
+                        countMines +=1
+               
                         
                 # Repacing EMPTY with the number of surrounding mines ------------------------------------------------
                 key_grid[rowIndex].insert(itemIndex, countMines)
                 del key_grid[rowIndex][nextItem]
-            
-            print("show then next item\n")
-            show_grid_key()
-            print()
                 
 
 
