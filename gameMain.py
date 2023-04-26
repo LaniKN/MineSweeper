@@ -184,12 +184,14 @@ def surroundingSpaces():
 
                     lstSides.append(key_grid[rowIndex][prevItem])
                     lstSides.append(key_grid[rowIndex][nextItem])
+                    print("LstSides: ", lstSides)
                    
                     
                     if rowIndex != 0:
                         lstAbove.append(key_grid[prevRow][prevItem])
                         lstAbove.append(key_grid[prevRow][itemIndex])
                         lstAbove.append(key_grid[prevRow][nextItem])
+                        print("lstAbove: ", lstAbove)
                         
                     
                     
@@ -197,6 +199,8 @@ def surroundingSpaces():
                         lstBelow.append(key_grid[nextRow][prevItem])
                         lstBelow.append(key_grid[nextRow][itemIndex])
                         lstBelow.append(key_grid[nextRow][nextItem])
+                        print("lstBelow: ", lstBelow)
+                        show_grid_key()
                         
                 
                 #last column------------------------------------------------------------------------------------------
@@ -346,7 +350,7 @@ def firstMove():
             del key_grid[rowIndex][nextItem+1]
 
 
-            surroundingSpaces()
+
             digSpace(rowIndex, itemIndex)
             digSpace(rowIndex, nextItem)
             
@@ -366,7 +370,6 @@ def firstMove():
             del key_grid[rowIndex][nextItem+1]
 
 
-            surroundingSpaces()
             digSpace(rowIndex, prevItem)
             digSpace(rowIndex, itemIndex)
             digSpace(rowIndex, nextItem)
@@ -382,7 +385,7 @@ def firstMove():
             key_grid[rowIndex].insert(itemIndex, EMPTY)
             del key_grid[rowIndex][nextItem]
 
-            surroundingSpaces()
+
             digSpace(rowIndex, prevItem)
             digSpace(rowIndex, itemIndex)
         
@@ -391,7 +394,7 @@ def firstMove():
             key_grid[prevRow].insert(itemIndex, EMPTY)
             del key_grid[prevRow][nextItem]
 
-            surroundingSpaces()
+
             digSpace(prevRow, itemIndex)
         
         #clear bottom space
@@ -399,7 +402,7 @@ def firstMove():
             key_grid[nextRow].insert(itemIndex, 0)
             del key_grid[nextRow][nextItem]
             
-            surroundingSpaces()
+
             digSpace(nextRow, itemIndex)
 
 
