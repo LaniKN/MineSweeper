@@ -1,3 +1,5 @@
+
+
 player_grid = []
 key_grid = []
 EMPTY = 0
@@ -184,14 +186,12 @@ def surroundingSpaces():
 
                     lstSides.append(key_grid[rowIndex][prevItem])
                     lstSides.append(key_grid[rowIndex][nextItem])
-                    print("LstSides: ", lstSides)
                    
                     
                     if rowIndex != 0:
                         lstAbove.append(key_grid[prevRow][prevItem])
                         lstAbove.append(key_grid[prevRow][itemIndex])
                         lstAbove.append(key_grid[prevRow][nextItem])
-                        print("lstAbove: ", lstAbove)
                         
                     
                     
@@ -199,8 +199,6 @@ def surroundingSpaces():
                         lstBelow.append(key_grid[nextRow][prevItem])
                         lstBelow.append(key_grid[nextRow][itemIndex])
                         lstBelow.append(key_grid[nextRow][nextItem])
-                        print("lstBelow: ", lstBelow)
-                        show_grid_key()
                         
                 
                 #last column------------------------------------------------------------------------------------------
@@ -223,15 +221,12 @@ def surroundingSpaces():
                 for item in lstAbove:
                     if item == MINE:
                         countMines += 1
-                    lstAbove.dequeue()
                 for item in lstSides:
                     if item == MINE:
                         countMines += 1
-                    lstSides.dequeue()
                 for item in lstBelow:
                     if item == MINE:
                         countMines +=1
-                    lstBelow.dequeue()
                
                         
                 # Repacing EMPTY with the number of surrounding mines ------------------------------------------------
@@ -242,10 +237,15 @@ def surroundingSpaces():
 
 
 def askPlayerCoordFlag():
-    xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))-1
-    yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
-    coord = [xCoord, yCoord]
-    return coord
+    try:
+        xCoord = int(input("What x-coordinate would you like to place your flag on?\n"))-1
+        yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
+    except (ValueError, TypeError):
+        print("That is not a valid input!")
+        gameAskTurn()
+    else:
+        coord = [xCoord, yCoord]
+        return coord
 
 def askPlayerCoordMine():
     
@@ -261,18 +261,20 @@ def askPlayerCoordMine():
         return coord
 
 def gameAskTurn():
-
-    show_grid()
+    global minesNum
+    if (minesNum != 0):
+        show_grid()
     
-    print("\nFlags: ", minesNum)
-    turnChoice = input('Would you like to mine or place flags? M, F?\n').upper()
-    play(turnChoice)
+        print("\nFlags: ", minesNum)
+        turnChoice = input('Would you like to mine or place flags? M, F?\n').upper()
+        play(turnChoice)
+    else:
+        gameOver()
 
 def play(turnChoice):
     
     if turnChoice == 'F':
         coord = askPlayerCoordFlag()
-        print("play coord: ", coord)
         set_flag(coord[1], coord[0])
         gameAskTurn()
     elif turnChoice == 'M':
@@ -284,7 +286,7 @@ def play(turnChoice):
         gameAskTurn()
 
 def set_flag(row, col):
-    global player_grid,minesNum, flagNum
+    global player_grid,minesNum, flagNum, key_grid, MINE, UNKNOWN, FLAG
 
     if player_grid[row][col] == UNKNOWN:
         player_grid[row][col] = FLAG
@@ -328,7 +330,10 @@ def gameOver():
     show_grid_key()
     player_grid = []
     key_grid = []
-    playAgain = input("Oh No! You've hit a mine!! Would you like to play again? (y/n)?\n")
+    if (minesNum != 0):
+        playAgain = input("Oh No! You've hit a mine!! Would you like to play again? (y/n)?\n")
+    else:
+        playAgain = input("You won!! Nice job! Do you want to play again? (y/n)?\n")
     if playAgain.lower() == 'y':
         myGame()
     else:
