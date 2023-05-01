@@ -223,12 +223,15 @@ def surroundingSpaces():
                 for item in lstAbove:
                     if item == MINE:
                         countMines += 1
+                    lstAbove.dequeue()
                 for item in lstSides:
                     if item == MINE:
                         countMines += 1
+                    lstSides.dequeue()
                 for item in lstBelow:
                     if item == MINE:
                         countMines +=1
+                    lstBelow.dequeue()
                
                         
                 # Repacing EMPTY with the number of surrounding mines ------------------------------------------------
@@ -245,11 +248,17 @@ def askPlayerCoordFlag():
     return coord
 
 def askPlayerCoordMine():
-   xCoord = int(input("What x-coordinate would you like to mine?\n"))-1
-   yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
-   coord = [xCoord, yCoord]
-   #[col, row]
-   return coord
+    
+    try:
+        xCoord = int(input("What x-coordinate would you like to mine?\n"))-1
+        yCoord = int(input("what y-coordinate would you like to place your flag on?\n"))-1
+    except (ValueError, TypeError):
+        print("That is not a valid input!")
+        gameAskTurn()
+    else:
+        coord = [xCoord, yCoord]
+        #[col, row]
+        return coord
 
 def gameAskTurn():
 
